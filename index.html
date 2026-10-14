@@ -1,503 +1,180 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>카카오맵 장소 검색</title>
-
-  <style>
-    /* 전체 화면 기본 설정 */
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f6f8;
-    }
-
-    /* 왼쪽과 오른쪽 영역 배치 */
-    .container {
-      display: flex;
-      width: 100%;
-      height: 100vh;
-    }
-
-    /* 왼쪽 검색 영역 */
-    .sidebar {
-      width: 350px;
-      min-width: 280px;
-      background: white;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #ddd;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #222;
-    }
-
-    /* 검색창 */
-    .search-box {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-
-    #keyword {
-      flex: 1;
-      min-width: 0;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    button {
-      padding: 12px 16px;
-      background: #fee500;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #f4d900;
-    }
-
-    /* 안내 메시지 */
-    #status {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-
-    /* 검색 결과 영역 */
-    #result-list {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .result-item {
-      padding: 15px 5px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-    }
-
-    .result-item:hover {
-      background: #f7f7f7;
-    }
-
-    .place-name {
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .place-address {
-      font-size: 13px;
-      color: #777;
-      line-height: 1.5;
-    }
-
-    /* 오른쪽 지도 영역 */
-    .map-wrapper {
-      position: relative;
-      flex: 1;
-      min-width: 0;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* 현재 위치로 돌아가기 버튼 */
-    #location-btn {
-      position: absolute;
-      right: 20px;
-      top: 20px;
-      z-index: 10;
-      background: white;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-
-    /* 작은 화면에서도 사용 가능하도록 설정 */
-    @media (max-width: 650px) {
-      .container {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        height: 40%;
-        min-height: 220px;
-      }
-
-      .map-wrapper {
-        height: 60%;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CINE MAP | 특별관 영화관 지도</title>
+<style>
+:root{--bg:#151316;--side:#201a20;--card:#2a222a;--line:#44313b;--burgundy:#8c2949;--accent:#e6a0b8;--text:#fff4f7;--muted:#bfabb4}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Pretendard,"Noto Sans KR",Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}.layout{display:flex;height:100dvh;min-height:480px}.sidebar{width:390px;max-width:45%;min-width:300px;background:var(--side);color:var(--text);display:flex;flex-direction:column;box-shadow:2px 0 18px #0003;z-index:2}.head{padding:23px 20px 16px;background:var(--bg);text-align:center}.logo{font-size:29px;font-weight:900;letter-spacing:1px;color:var(--accent)}.head p{font-size:12px;color:var(--muted);margin:5px 0 0}.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.tab{border:0;background:#29222b;color:#d2bec6;padding:15px 3px;font-size:12px;font-weight:800;border-bottom:3px solid transparent}.tab[aria-pressed=true]{background:#39202a;border-bottom-color:#e18aa6;color:white}.tools{padding:15px 15px 9px;border-bottom:1px solid var(--line)}.search{display:flex;gap:8px}.search input{min-width:0;flex:1;border:1px solid #694a58;border-radius:9px;padding:12px;background:#181419;color:white}.search button,.location-button{background:var(--burgundy);color:white;border:0;border-radius:9px;padding:10px 15px;font-weight:700}.options{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:12px 0 3px}.all-button{background:transparent;border:1px solid #805369;color:#f3ceda;border-radius:30px;padding:7px 10px;font-size:12px}.count{font-size:12px;color:var(--muted)}.message{margin:0;padding:10px 15px;color:#eac1d0;font-size:12px;line-height:1.5;min-height:34px}.results{overflow:auto;flex:1;padding:0 12px 14px}.result{width:100%;text-align:left;display:block;border:1px solid #44333d;background:var(--card);border-radius:11px;color:var(--text);padding:15px;margin:7px 0}.result:hover,.result:focus-visible{outline:2px solid #d27796}.result strong{display:block;margin-bottom:8px;font-size:15px}.result .address{display:block;margin:5px 0;color:var(--muted);font-size:12px}.tag{display:inline-block;border-radius:6px;padding:3px 6px;margin:3px 4px 2px 0;font-size:10px;font-weight:800;color:white}.imap{background:#376ba6}.four{background:#a43f5a}.screenx{background:#6e51a0}.dolby{background:#176e71}.map-wrap{position:relative;flex:1;min-width:0}#map{width:100%;height:100%;background:#e1e8e6}.floating{position:absolute;right:16px;top:16px;z-index:3;box-shadow:0 2px 12px #0003}.legend{position:absolute;right:14px;bottom:20px;background:#fffefaee;border-radius:9px;padding:10px;font-size:11px;z-index:2;box-shadow:0 2px 10px #0002;line-height:2}.legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.popup{min-width:220px;max-width:280px;background:#20171e;color:#fff;border:1px solid #ad627f;border-radius:12px;box-shadow:0 5px 20px #0006;padding:14px;position:relative;transform:translateY(-9px)}.popup:after{content:"";position:absolute;bottom:-9px;left:calc(50% - 9px);border-width:9px 9px 0;border-style:solid;border-color:#20171e transparent transparent}.popup strong{display:block;font-size:15px;padding-right:24px;margin-bottom:7px}.popup .small{font-size:12px;line-height:1.55;color:#e0c8d1}.popup a{display:inline-block;color:#ffb7cf;margin-top:8px;font-size:12px}.close{position:absolute;right:8px;top:8px;color:white;background:none;border:0;font-size:20px}.marker-pin{width:38px;height:38px;display:grid;place-items:center;background:#78233f;color:white;border:2px solid white;border-radius:50% 50% 50% 8%;transform:rotate(-45deg);box-shadow:0 2px 8px #0006}.marker-pin span{transform:rotate(45deg);font-size:19px}button:focus-visible,input:focus-visible{outline:2px solid #e9a5bb;outline-offset:2px}
+@media(max-width:720px){.layout{flex-direction:column;height:100dvh}.sidebar{width:100%;max-width:none;min-width:0;height:49%;min-height:290px}.head{padding:12px}.logo{font-size:23px}.tabs .tab{padding:10px 2px}.map-wrap{height:51%;min-height:220px}.legend{display:none}}
+</style>
 </head>
-
 <body>
+<div class="layout">
+  <aside class="sidebar">
+    <header class="head"><div class="logo">🎬 CINE MAP</div><p>특별한 영화를 위한 특별관 지도</p></header>
+    <nav class="tabs" aria-label="특별관 종류">
+      <button class="tab" data-category="IMAX" aria-pressed="true">IMAX</button>
+      <button class="tab" data-category="4DX" aria-pressed="false">4DX</button>
+      <button class="tab" data-category="SCREENX" aria-pressed="false">SCREENX</button>
+      <button class="tab" data-category="DOLBY" aria-pressed="false">DOLBY</button>
+    </nav>
+    <div class="tools">
+      <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="영화관 이름 또는 지역" aria-label="영화관 검색"><button>검색</button></form>
+      <div class="options"><button type="button" class="all-button" id="allButton">전체 특별관 보기</button><span class="count" id="count">0개 영화관</span></div>
+    </div>
+    <p id="status" class="message" role="status" aria-live="polite">지도를 불러오는 중...</p>
+    <section id="results" class="results" aria-label="영화관 목록"></section>
+  </aside>
+  <main class="map-wrap"><div id="map" aria-label="카카오맵 지도"></div><button class="location-button floating" id="myLocation" type="button">◎ 내 위치</button><div class="legend"><div><span class="dot" style="background:#376ba6"></span>IMAX</div><div><span class="dot" style="background:#a43f5a"></span>4DX</div><div><span class="dot" style="background:#6e51a0"></span>SCREENX</div><div><span class="dot" style="background:#176e71"></span>Dolby Cinema</div></div></main>
+</div>
+<script>
+// 카카오 JavaScript 키: 다른 키를 사용한다면 이 값만 교체
+const KAKAO_KEY = '8929e02f1021d579204392c70668597d';
 
-  <div class="container">
+// 공식 영화관 안내를 기준으로 정리한 시작용 데이터
+// 특별관 운영 정보는 변경될 수 있으므로 제출 전 공식 홈페이지 재확인
+const cinemas = [
+  {name:'CGV 용산아이파크몰',address:'서울 용산구 한강대로23길 55',types:['IMAX','4DX','SCREENX']},
+  {name:'CGV 왕십리',address:'서울 성동구 왕십리광장로 17',types:['IMAX','4DX','SCREENX']},
+  {name:'CGV 영등포타임스퀘어',address:'서울 영등포구 영중로 15',types:['IMAX','4DX','SCREENX']},
+  {name:'CGV 천호',address:'서울 강동구 양재대로 1571',types:['IMAX','SCREENX']},
+  {name:'CGV 여의도',address:'서울 영등포구 국제금융로 10',types:['4DX']},
+  {name:'CGV 홍대',address:'서울 마포구 양화로 153',types:['SCREENX']},
+  {name:'메가박스 코엑스',address:'서울 강남구 봉은사로 524',types:['DOLBY']},
+  {name:'메가박스 남양주현대아울렛 스페이스원',address:'경기 남양주시 다산순환로 50',types:['DOLBY']},
+  {name:'메가박스 안성스타필드',address:'경기 안성시 공도읍 서동대로 3930-39',types:['DOLBY']}
+];
+const colors={IMAX:'#376ba6','4DX':'#a43f5a',SCREENX:'#6e51a0',DOLBY:'#176e71'};
+let map, geocoder, currentLocation, locationMarker, overlay;
+let activeCategory='IMAX';
+let searchTerm='';
+let placeMarkers=[];
+const statusBox=document.getElementById('status');
+const resultsBox=document.getElementById('results');
+function statusMessage(message){statusBox.textContent=message;}
 
-    <!-- 왼쪽 검색 영역 -->
-    <aside class="sidebar">
-      <h2>장소 검색</h2>
-
-      <form class="search-box" id="search-form">
-        <input
-          type="text"
-          id="keyword"
-          placeholder="장소를 검색하세요"
-          aria-label="검색할 장소"
-        >
-        <button type="submit">검색</button>
-      </form>
-
-      <div id="status" role="status">
-        지도를 불러오는 중입니다...
-      </div>
-
-      <div id="result-list"></div>
-    </aside>
-
-    <!-- 오른쪽 지도 영역 -->
-    <main class="map-wrapper">
-      <div id="map"></div>
-      <button id="location-btn" type="button">
-        내 위치
-      </button>
-    </main>
-
-  </div>
-
-  <script>
-    // 지도와 장소 검색에 사용할 변수
-    let map;
-    let places;
-    let infoWindow;
-    let searchMarkers = [];
-    let currentMarker = null;
-    let currentPosition = null;
-    let searchRequestId = 0;
-
-    // 기본 위치: 서울시청
-    const defaultLatitude = 37.5665;
-    const defaultLongitude = 126.9780;
-
-    const statusElement = document.getElementById("status");
-    const resultList = document.getElementById("result-list");
-
-    // 안내 메시지 변경
-    function setStatus(message) {
-      statusElement.textContent = message;
-    }
-
-    // SDK를 불러오지 못한 경우
-    function showSdkError() {
-      setStatus("카카오맵 SDK 로딩에 실패했습니다. API 키와 등록 도메인을 확인하세요.");
-    }
-
-    // 카카오맵 SDK가 완전히 로드된 후 실행
-    function loadKakaoMap() {
-      if (!window.kakao || !kakao.maps) {
-        showSdkError();
-        return;
-      }
-
-      kakao.maps.load(function () {
-        initializeMap();
-      });
-    }
-
-    // 지도 생성
-    function initializeMap() {
-      const mapContainer = document.getElementById("map");
-
-      const mapOptions = {
-        center: new kakao.maps.LatLng(
-          defaultLatitude,
-          defaultLongitude
-        ),
-        level: 5
-      };
-
-      map = new kakao.maps.Map(mapContainer, mapOptions);
-
-      // 장소 검색 객체 생성
-      places = new kakao.maps.services.Places();
-
-      // 장소 정보창 생성
-      infoWindow = new kakao.maps.InfoWindow({
-        zIndex: 1
-      });
-
-      // 지도 생성 후 현재 위치 요청
-      requestCurrentLocation();
-    }
-
-    // 브라우저에서 현재 위치 요청
-    function requestCurrentLocation() {
-      if (!map) {
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        setStatus("이 브라우저는 위치 기능을 지원하지 않습니다.");
-        return;
-      }
-
-      setStatus("현재 위치를 확인하고 있습니다...");
-
-      navigator.geolocation.getCurrentPosition(
-        function (position) {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-
-          currentPosition = new kakao.maps.LatLng(
-            latitude,
-            longitude
-          );
-
-          // 현재 위치로 지도 이동
-          map.setCenter(currentPosition);
-          map.setLevel(5);
-
-          // 기존 현재 위치 마커 제거
-          if (currentMarker) {
-            currentMarker.setMap(null);
-          }
-
-          // 현재 위치 마커 표시
-          currentMarker = new kakao.maps.Marker({
-            map: map,
-            position: currentPosition
-          });
-
-          // 현재 위치에 원형 표시
-          const currentMarkerContent = document.createElement("div");
-          currentMarkerContent.style.cssText =
-            "background:#3478f6;color:white;padding:6px 10px;" +
-            "border-radius:16px;font-size:12px;white-space:nowrap;";
-          currentMarkerContent.textContent = "현재 위치";
-
-          const currentLabel = new kakao.maps.CustomOverlay({
-            map: map,
-            position: currentPosition,
-            content: currentMarkerContent,
-            yAnchor: 2.2
-          });
-
-          // 현재 위치를 다시 요청할 때 중복 라벨 방지
-          if (window.currentLabelOverlay) {
-            window.currentLabelOverlay.setMap(null);
-          }
-          window.currentLabelOverlay = currentLabel;
-
-          setStatus("현재 위치를 찾았습니다. 장소를 검색해 보세요.");
-        },
-
-        function (error) {
-          // 위치 권한 거부 또는 위치 확인 실패 처리
-          if (error.code === 1) {
-            setStatus("위치 권한이 거부되어 서울시청을 표시합니다.");
-          } else {
-            setStatus("현재 위치를 확인할 수 없어 서울시청을 표시합니다.");
-          }
-
-          if (currentPosition) {
-            map.setCenter(currentPosition);
-          }
-        },
-
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
+// 필요한 모든 함수 정의 후 SDK를 로딩하여 실행 순서 오류 방지
+function startSdk(){
+  if(!window.kakao || !kakao.maps){statusMessage('SDK가 로드되지 않았습니다. 카카오 개발자 설정을 확인해 주세요.');return;}
+  kakao.maps.load(initializeMap);
+}
+function initializeMap(){
+  try{
+    map=new kakao.maps.Map(document.getElementById('map'),{
+      center:new kakao.maps.LatLng(37.5665,126.9780),level:9
+    });
+    geocoder=new kakao.maps.services.Geocoder();
+    // 먼저 지도를 보여준 다음 주소를 위도·경도로 변환
+    Promise.all(cinemas.map(cinema=>new Promise(resolve=>{
+      geocoder.addressSearch(cinema.address,(data,result)=>{
+        if(result===kakao.maps.services.Status.OK && data.length){
+          cinema.position=new kakao.maps.LatLng(Number(data[0].y),Number(data[0].x));
         }
-      );
-    }
-
-    // 이전 검색 마커 삭제
-    function clearSearchMarkers() {
-      searchMarkers.forEach(function (marker) {
-        marker.setMap(null);
+        resolve();
       });
+    }))).then(()=>{
+      updateResults();
+      statusMessage('영화관을 선택하거나 특별관 탭을 눌러보세요.');
+      requestCurrentLocation(true);
+    });
+  }catch(error){console.error(error);statusMessage('지도 초기화 오류: 브라우저 콘솔(F12)을 확인하세요.');}
+}
 
-      searchMarkers = [];
+// 현재 위치 기능: 첫 접속 시와 내 위치 버튼에서 사용
+function requestCurrentLocation(moveToLocation=true){
+  if(!navigator.geolocation){statusMessage('이 브라우저는 위치 기능을 지원하지 않습니다.');return;}
+  if(!window.isSecureContext){statusMessage('현재 위치를 사용하려면 HTTPS 또는 localhost에서 실행하세요.');return;}
+  statusMessage('현재 위치를 확인하고 있습니다. 브라우저 위치 권한을 허용해 주세요.');
+  navigator.geolocation.getCurrentPosition(position=>{
+    currentLocation=new kakao.maps.LatLng(position.coords.latitude,position.coords.longitude);
+    if(locationMarker)locationMarker.setMap(null);
+    // 현재 위치는 일반 영화관 마커와 구별되는 파란 원으로 표시
+    locationMarker=new kakao.maps.CustomOverlay({map,position:currentLocation,yAnchor:0.5,content:'<div title="내 현재 위치" style="width:19px;height:19px;background:#258aff;border:4px solid white;border-radius:50%;box-shadow:0 1px 9px #234b7f"></div>'});
+    if(moveToLocation){map.setCenter(currentLocation);map.setLevel(5);}
+    statusMessage('현재 위치를 표시했어요. 특별관을 선택해 보세요.');
+  },error=>{
+    const explanation=error.code===1?'위치 권한이 거부되었거나 차단되어 있어요.':'현재 위치를 확인하지 못했어요.';
+    statusMessage(explanation+' 지도 검색은 계속 사용할 수 있습니다.');
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+}
 
-      if (infoWindow) {
-        infoWindow.close();
-      }
-    }
+// 외부 입력이 팝업 HTML에 들어갈 때 문자 치환
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
+function closePopup(){if(overlay){overlay.setMap(null);overlay=null;}}
 
-    // 장소 검색 실행
-    function searchPlaces() {
-      if (!map || !places) {
-        setStatus("지도가 아직 준비되지 않았습니다.");
-        return;
-      }
+// 선택한 특별관마다 다른 색상의 SVG 마커 이미지 제작
+function makeMarkerImage(category){
+  const color=colors[category]||'#8c2949';
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="46" height="56" viewBox="0 0 46 56"><path d="M23 2C11 2 3 11 3 23c0 16 20 30 20 30s20-14 20-30C43 11 35 2 23 2Z" fill="${color}" stroke="white" stroke-width="3"/><rect x="12" y="15" width="22" height="16" rx="3" fill="white"/><path d="M16 15v16M23 15v16M30 15v16" stroke="${color}" stroke-width="3"/></svg>`;
+  const url='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+  return new kakao.maps.MarkerImage(url,new kakao.maps.Size(46,56),{offset:new kakao.maps.Point(23,53)});
+}
+function showPopup(cinema){
+  closePopup();
+  const mapSearch='https://map.kakao.com/link/search/'+encodeURIComponent(cinema.name);
+  const tags=cinema.types.map(t=>`<span class="tag ${t==='IMAX'?'imap':t==='4DX'?'four':t==='SCREENX'?'screenx':'dolby'}">${escapeHtml(t==='DOLBY'?'Dolby Cinema':t)}</span>`).join('');
+  const html=`<div class="popup"><button class="close" type="button" aria-label="팝업 닫기" onclick="closePopup()">×</button><strong>🎟 ${escapeHtml(cinema.name)}</strong><div>${tags}</div><div class="small">📍 ${escapeHtml(cinema.address)}</div><a href="${mapSearch}" target="_blank" rel="noopener noreferrer">카카오맵에서 확인 ↗</a></div>`;
+  overlay=new kakao.maps.CustomOverlay({map,position:cinema.position,content:html,yAnchor:1.14,zIndex:5});
+  map.panTo(cinema.position);
+}
 
-      const keyword = document.getElementById("keyword").value.trim();
+// 선택한 탭과 검색어를 동시에 적용
+function getFilteredCinemas(){
+  return cinemas.filter(cinema=>(activeCategory==='ALL'||cinema.types.includes(activeCategory)) &&
+    (cinema.name+' '+cinema.address+' '+cinema.types.join(' ')).toLowerCase().includes(searchTerm));
+}
+function updateResults(){
+  closePopup();
+  placeMarkers.forEach(marker=>marker.setMap(null));placeMarkers=[];
+  resultsBox.replaceChildren();
+  const filtered=getFilteredCinemas();
+  document.getElementById('count').textContent=filtered.length+'개 영화관';
+  document.querySelectorAll('.tab').forEach(tab=>tab.setAttribute('aria-pressed',String(tab.dataset.category===activeCategory)));
+  document.getElementById('allButton').setAttribute('aria-pressed',String(activeCategory==='ALL'));
+  if(!filtered.length){const empty=document.createElement('p');empty.className='message';empty.textContent='조건에 맞는 영화관이 없습니다.';resultsBox.append(empty);return;}
+  const bounds=new kakao.maps.LatLngBounds();let located=0;
+  filtered.forEach(cinema=>{
+    const card=document.createElement('button');card.type='button';card.className='result';
+    const badges=cinema.types.map(t=>`<span class="tag ${t==='IMAX'?'imap':t==='4DX'?'four':t==='SCREENX'?'screenx':'dolby'}">${escapeHtml(t==='DOLBY'?'Dolby Cinema':t)}</span>`).join('');
+    card.innerHTML=`<strong>🎞 ${escapeHtml(cinema.name)}</strong>${badges}<span class="address">${escapeHtml(cinema.address)}</span>`;
+    resultsBox.append(card);
+    if(!cinema.position){card.title='주소 좌표를 아직 확인하지 못했습니다';card.disabled=true;return;}
+    located++;bounds.extend(cinema.position);
+    // 전체 보기에서는 해당 영화관의 첫 번째 유형 색상으로 표시
+    const colorType=activeCategory==='ALL'?cinema.types[0]:activeCategory;
+    const marker=new kakao.maps.Marker({map,position:cinema.position,image:makeMarkerImage(colorType),title:cinema.name});
+    placeMarkers.push(marker);
+    const select=()=>showPopup(cinema);
+    card.addEventListener('click',select);
+    kakao.maps.event.addListener(marker,'click',select);
+  });
+  if(located>0){map.setBounds(bounds,65,65,65,65);if(located===1)map.setLevel(5);}
+  if(located<filtered.length)statusMessage('일부 영화관 주소를 찾지 못했습니다. 주소를 확인해 주세요.');
+}
 
-      if (!keyword) {
-        setStatus("검색어를 입력해 주세요.");
-        return;
-      }
+// 탭 선택과 검색 이벤트 연결
+document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{
+  activeCategory=tab.dataset.category;
+  if(map)updateResults();
+}));
+document.getElementById('allButton').addEventListener('click',()=>{activeCategory='ALL';if(map)updateResults();});
+document.getElementById('searchForm').addEventListener('submit',event=>{
+  event.preventDefault();searchTerm=document.getElementById('searchInput').value.trim().toLowerCase();
+  if(map)updateResults();
+});
+document.getElementById('searchInput').addEventListener('input',event=>{
+  searchTerm=event.target.value.trim().toLowerCase();if(map)updateResults();
+});
+document.getElementById('myLocation').addEventListener('click',()=>{if(map)requestCurrentLocation(true);});
 
-      // 이전 검색 요청의 결과가 나중에 도착하는 문제 방지
-      const requestId = ++searchRequestId;
-
-      setStatus("검색 중입니다...");
-
-      // 카카오 장소 키워드 검색
-      places.keywordSearch(keyword, function (data, status) {
-        if (requestId !== searchRequestId) {
-          return;
-        }
-
-        clearSearchMarkers();
-        resultList.replaceChildren();
-
-        if (status === kakao.maps.services.Status.OK) {
-          displayPlaces(data);
-          setStatus("검색 결과 " + data.length + "개");
-        } else if (
-          status === kakao.maps.services.Status.ZERO_RESULT
-        ) {
-          setStatus("검색 결과가 없습니다.");
-        } else {
-          setStatus("장소 검색 중 오류가 발생했습니다.");
-        }
-      });
-    }
-
-    // 검색된 장소를 리스트와 지도에 표시
-    function displayPlaces(data) {
-      const bounds = new kakao.maps.LatLngBounds();
-
-      data.forEach(function (place) {
-        const position = new kakao.maps.LatLng(
-          Number(place.y),
-          Number(place.x)
-        );
-
-        bounds.extend(position);
-
-        // 장소 마커 생성
-        const marker = new kakao.maps.Marker({
-          map: map,
-          position: position
-        });
-
-        searchMarkers.push(marker);
-
-        // 검색 결과 요소 생성
-        const item = document.createElement("div");
-        item.className = "result-item";
-        item.tabIndex = 0;
-        item.setAttribute("role", "button");
-
-        const name = document.createElement("div");
-        name.className = "place-name";
-        name.textContent = place.place_name;
-
-        const address = document.createElement("div");
-        address.className = "place-address";
-        address.textContent =
-          place.road_address_name ||
-          place.address_name ||
-          "주소 정보 없음";
-
-        item.appendChild(name);
-        item.appendChild(address);
-
-        resultList.appendChild(item);
-
-        // 검색 결과를 선택했을 때 실행
-        function selectPlace() {
-          map.setCenter(position);
-          map.setLevel(5);
-
-          // 장소 이름을 안전하게 표시
-          const content = document.createElement("div");
-          content.style.cssText =
-            "padding:8px 12px;font-size:13px;white-space:nowrap;";
-          content.textContent = place.place_name;
-
-          infoWindow.setContent(content);
-          infoWindow.open(map, marker);
-        }
-
-        // 리스트 클릭 시 장소 이동
-        item.addEventListener("click", selectPlace);
-
-        // 키보드로도 검색 결과 선택 가능
-        item.addEventListener("keydown", function (event) {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            selectPlace();
-          }
-        });
-
-        // 지도 마커 클릭 시 장소 표시
-        kakao.maps.event.addListener(
-          marker,
-          "click",
-          selectPlace
-        );
-      });
-
-      // 검색 결과의 모든 장소가 보이도록 지도 조정
-      map.setBounds(bounds);
-    }
-
-    // 검색 버튼 또는 Enter 키 처리
-    document.getElementById("search-form")
-      .addEventListener("submit", function (event) {
-        event.preventDefault();
-        searchPlaces();
-      });
-
-    
-    // 내 위치 버튼 처리
-    document.getElementById("location-btn")
-      .addEventListener("click", function () {
-        if (map) {
-          if (currentPosition) {
-            map.setCenter(currentPosition);
-            map.setLevel(5);
-          } else {
-            requestCurrentLocation();
-          }
-        }
-      });
-
-  </script>
-
-  <!-- 함수 정의가 완료된 다음 카카오맵 SDK 불러오기 -->
-  <script
-    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8929e02f1021d579204392c70668597d&libraries=services&autoload=false"
-    onload="loadKakaoMap()"
-    onerror="showSdkError()">
-  </script>
-
-</body>
-</html>
-
-  </script>
-
+// SDK는 함수 정의가 끝난 후 동적으로 삽입 (GitHub Pages 실행 순서 오류 예방)
+const sdkScript=document.createElement('script');
+sdkScript.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+encodeURIComponent(KAKAO_KEY)+'&libraries=services&autoload=false';
+sdkScript.onload=startSdk;
+sdkScript.onerror=()=>statusMessage('카카오맵 SDK 불러오기 실패. JavaScript 키·도메인 등록·카카오맵 사용 설정을 확인하세요.');
+document.body.appendChild(sdkScript);
+</script>
 </body>
 </html>
