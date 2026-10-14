@@ -183,13 +183,6 @@
 
   </div>
 
-  <!-- 카카오맵 SDK: 자동 실행을 막고 장소 검색 라이브러리 추가 -->
-  <script
-    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8929e02f1021d579204392c70668597d&libraries=services&autoload=false"
-    onload="loadKakaoMap()"
-    onerror="showSdkError()">
-  </script>
-
   <script>
     // 지도와 장소 검색에 사용할 변수
     let map;
@@ -478,6 +471,7 @@
         searchPlaces();
       });
 
+    
     // 내 위치 버튼 처리
     document.getElementById("location-btn")
       .addEventListener("click", function () {
@@ -490,6 +484,18 @@
           }
         }
       });
+
+  </script>
+
+  <!-- 함수 정의가 완료된 다음 카카오맵 SDK 불러오기 -->
+  <script
+    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8929e02f1021d579204392c70668597d&libraries=services&autoload=false"
+    onload="loadKakaoMap()"
+    onerror="showSdkError()">
+  </script>
+
+</body>
+</html>
 
   </script>
 
