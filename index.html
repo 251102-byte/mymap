@@ -6,7 +6,7 @@ const KAKAO_KEY='8929e02f1021d579204392c70668597d';
 const fallbackCinemas = [];
 // Google 시트: 파일 > 공유 > 웹에 게시 > CSV 링크를 아래 따옴표 안에 입력
 // 예시: https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS13-0IVx76ktrwlMUdnpP2S9gymQcJZhg-80z_021QExHl6tj_FbEA0pcsqvAQWn4fhNSmNsGGwuoK/pubhtml?gid=574586520&single=true';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS13-0IVx76ktrwlMUdnpP2S9gymQcJZhg-80z_021QExHl6tj_FbEA0pcsqvAQWn4fhNSmNsGGwuoK/pub?gid=574586520&single=true&output=csv';
 let cinemas = fallbackCinemas.map(c => ({...c, types:[...c.types]}));
 
 // 따옴표로 감싼 주소나 쉼표를 지원하는 CSV 파서
