@@ -3,46 +3,7 @@
 </style></head><body><div class="app"><aside class="sidebar"><header class="brand"><h1>🎬 CINE MAP</h1><p>전국 IMAX · 4DX · SCREENX · Dolby Cinema</p></header><nav class="tabs" aria-label="특별관"><button class="tab" data-type="IMAX">IMAX</button><button class="tab" data-type="4DX">4DX</button><button class="tab" data-type="SCREENX">SCREENX</button><button class="tab" data-type="DOLBY">DOLBY</button></nav><div class="controls"><form class="search" id="searchForm"><input id="keyword" placeholder="지역 또는 영화관 검색 (예: 대구)" aria-label="검색어"><button>검색</button></form><div class="subcontrols"><button class="all active" id="allBtn" type="button">전체 특별관 보기</button><span class="count" id="count"></span></div></div><p id="status" class="status" role="status">지도 로딩 중...</p><section id="results" class="results"></section><div class="note">극장·상영 정보는 변동될 수 있어요. 예매 전 공식 사이트를 확인하세요.</div></aside><main class="map-area"><div id="map" aria-label="카카오맵"></div><button class="locate" id="myLocation" type="button">◎ 내 위치</button><div class="legend"><div><i style="background:#286da8"></i>IMAX</div><div><i style="background:#af4c69"></i>4DX</div><div><i style="background:#7656b0"></i>SCREENX</div><div><i style="background:#18827f"></i>Dolby Cinema</div></div></main></div><script>
 // 카카오 개발자 사이트에서 발급받은 JavaScript 키
 const KAKAO_KEY='8929e02f1021d579204392c70668597d';
-// 공식 CGV 극장 안내와 메가박스 Dolby Cinema 안내를 기반으로 정리한 35개 지점
-// 공식 페이지에서 확인된 지점을 수록했으며 시트 링크가 없으면 이 예시 목록을 표시합니다.
-// 일부 극장 정보는 변경될 수 있으므로 최신 운영 여부를 확인하세요.
-const fallbackCinemas = [
-{name:'CGV 용산아이파크몰',address:'서울 용산구 한강대로23길 55',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 왕십리',address:'서울 성동구 왕십리광장로 17',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 영등포타임스퀘어',address:'서울 영등포구 영중로 15',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 천호',address:'서울 강동구 양재대로 1571',types:['IMAX','SCREENX']},
-{name:'CGV 여의도',address:'서울 영등포구 국제금융로 10',types:['4DX']},
-{name:'CGV 홍대',address:'서울 마포구 양화로 153',types:['SCREENX']},
-{name:'CGV 압구정',address:'서울 강남구 압구정로30길 45',types:['IMAX']},
-{name:'CGV 강남',address:'서울 강남구 강남대로 438',types:['SCREENX']},
-{name:'CGV 강변',address:'서울 광진구 광나루로56길 85',types:['4DX']},
-{name:'CGV 고덕강일',address:'서울 강동구 고덕비즈밸리로 51',types:['4DX','SCREENX']},
-{name:'CGV 구로',address:'서울 구로구 구로중앙로 152',types:['SCREENX']},
-{name:'CGV 등촌',address:'서울 강서구 공항대로45길 61',types:['SCREENX']},
-{name:'CGV 방학',address:'서울 도봉구 도봉로 684',types:['4DX']},
-{name:'CGV 상봉',address:'서울 중랑구 상봉로 131',types:['4DX','SCREENX']},
-{name:'CGV 신촌아트레온',address:'서울 서대문구 신촌로 129',types:['4DX','SCREENX']},
-{name:'CGV 연남',address:'서울 마포구 동교동 167-13',types:['4DX']},
-{name:'CGV 중계',address:'서울 노원구 동일로204가길 12',types:['4DX']},
-{name:'CGV 청담씨네시티',address:'서울 강남구 도산대로 323',types:['4DX']},
-{name:'CGV 인천',address:'인천 남동구 예술로 198',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 대전터미널',address:'대전 동구 동서대로 1689',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 대구',address:'대구 북구 침산로 93',types:['IMAX','4DX']},
-{name:'메가박스 코엑스',address:'서울 강남구 봉은사로 524',types:['DOLBY']},
-{name:'메가박스 남양주현대아울렛 스페이스원',address:'경기 남양주시 다산순환로 50',types:['DOLBY']},
-{name:'메가박스 안성스타필드',address:'경기 안성시 공도읍 서동대로 3930-39',types:['DOLBY']},
-{name:'메가박스 송도 트리플스트리트',address:'인천 연수구 송도과학로16번길 33-4',types:['DOLBY']},
-{name:'메가박스 수원AK플라자',address:'경기 수원시 팔달구 덕영대로 924',types:['DOLBY']},
-{name:'메가박스 하남스타필드',address:'경기 하남시 미사대로 750',types:['DOLBY']},
-{name:'메가박스 대전신세계 아트앤사이언스',address:'대전 유성구 엑스포로 1',types:['DOLBY']},
-{name:'메가박스 대구신세계 동대구',address:'대구 동구 동부로 149',types:['DOLBY']},
-{name:'CGV 센텀시티',address:'부산 해운대구 센텀남대로 35',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 울산삼산',address:'울산 남구 화합로 185',types:['IMAX','4DX','SCREENX']},
-{name:'CGV 제주',address:'제주 제주시 서광로 288',types:['4DX']},
-{name:'CGV 배곧',address:'경기 시흥시 배곧',types:['SCREENX']},
-{name:'CGV 김포',address:'경기 김포시',types:['SCREENX']},
-{name:'CGV 의정부',address:'경기 의정부시',types:['SCREENX']}
-];
+const fallbackCinemas = [];
 // Google 시트: 파일 > 공유 > 웹에 게시 > CSV 링크를 아래 따옴표 안에 입력
 // 예시: https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1sxdD4DoQ5lbhVmfBmI3WrFSQWn7hu04zH8Sj3_n9mu4/edit?usp=sharing';
